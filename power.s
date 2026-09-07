@@ -17,6 +17,9 @@
 
 // RDI -> base
 // RSI -> exp
+.data
+
+    result: .asciz "Result: %u\n"
 
 .text
 
@@ -43,7 +46,13 @@ main:
 
     push %rbp
     mov %rsp, %rbp
-
+    
+    mov $2, %rdi
+    mov $3, %rsi
+    call pow
+    mov %rax, %rsi
+    mov $result, %rdi
+    call printf
     call exit
 
     mov %rbp, %rsp
