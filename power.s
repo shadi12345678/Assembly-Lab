@@ -65,7 +65,7 @@ exp_base_input:
 # * Description: This coroutine takes two arguments and computes an exponent (base^exp)
 #   
 # * Arguments:
-#   base -> %rbp (as qword)
+#   base -> %rdi (as qword)
 #   exp -> %rsi (as qword)
 #   
 # * Output:  
