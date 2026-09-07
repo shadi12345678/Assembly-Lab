@@ -7,7 +7,7 @@
 
 .text
 
-inout:
+exp_base_input:
     #Prologue
     pushq %rbp
     movq %rsp, %rbp
@@ -39,7 +39,6 @@ inout:
     popq %rbp
     ret
 
-
 pow:
     #Prologue
     pushq %rbp
@@ -47,6 +46,7 @@ pow:
     movq %rdi, %rax
     movq %rsi, %rcx
 
+#Multiply base by itself exp times
 iter:
     cmp $1, %rcx
     je done
@@ -55,6 +55,7 @@ iter:
     jmp iter
 
 done:
+    #Epilogue
     movq %rbp, %rsp
     popq %rbp
     ret
@@ -62,20 +63,23 @@ done:
 .global main
 
 main:
+    #Prologue
     push %rbp
     mov %rsp, %rbp
     
-    call inout
+    call exp_base_input
 
-    movq %rax, %rdi   # base → rdi
-    movq %rbx, %rsi   # exponent → rsi
+    movq %rax, %rdi   #base -> rdi
+    movq %rbx, %rsi   #exponent -> rsi
 
     call pow
 
+    #Print result
     mov %rax, %rsi
     mov $result, %rdi
     call printf
-    call exit
 
+    #Epilogue
     mov %rbp, %rsp
     pop %rbp
+    ret
