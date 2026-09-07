@@ -24,20 +24,22 @@
 .text
 
 pow:
-    push %rbp
-    mov %rsp, %rbp
+    // Prologue
+    pushq %rbp
+    movq %rsp, %rbp
+    movq %rdi, %rax
+    movq %rsi, %rcx
+iter:
 
-    mov %rdi, %rax
-    mov %rsi, %rcx
     cmp $0, %rcx
     je done
     mulq %rdi
     dec %rcx
-    jmp pow
+    jmp iter
 done:
 
-    mov %rbp, %rsp
-    pop %rbp
+    movq %rbp, %rsp
+    popq %rbp
     ret
 
 .global main
