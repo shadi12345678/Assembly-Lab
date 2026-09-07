@@ -1,25 +1,6 @@
-/**
- * The pow subroutine calculates powers
- * of non-negative bases and exponents.
- *
- * Arguments:
- *
- * base - the exponential base
- * exp  - the exponent
- *
- * Return value: 'base' raised to the power of 'exp'.
- */
-// int pow(int base, int exp) {
-// 	int total = 1;
-// 	// ...
-// 	return total;
-// }
-
-// RDI -> base
-// RSI -> exp
 .data
 
-    result: .asciz "Result: %u\n"
+    result: .asciz "\nResult: %u\n"
     base_prompt: .asciz "\nPlease enter a positive number for a base: "
     exp_prompt: .asciz "\nPlease enter a positive number for an exponent: "
     input: .asciz "%ld"
@@ -27,53 +8,53 @@
 .text
 
 inout:
-    # prologue
+    #Prologue
     pushq %rbp
     movq %rsp, %rbp
 
-    movq $0, %rax              # no vector registers in use for printf
-    movq $exp_prompt, %rdi         # param1: prompt string
-    call printf                # print prompt
+    #Prompt user for exponent
+    movq $exp_prompt, %rdi
+    call printf
 
-    subq $32, %rsp             # reserve space on stack for input
+    #Read exponent from user and save into rbx
+    subq $16, %rsp
+    movq $0, %rax
+    movq $input, %rdi
+    leaq -8(%rbp), %rsi
+    call scanf
+    movq -8(%rbp), %rbx
 
-    movq $0, %rax              # no vector registers in use for scanf
-    movq $input, %rdi          # param1: input format string
-    leaq -16(%rbp), %rsi       # param2: address of reserved space    
-    call scanf                 # read user input
+    #Prompt user for base
+    movq $base_prompt, %rdi
+    call printf
 
-    movq -16(%rbp), %rsi       # load input value into RSI
+    #Read base from user and save into rax
+    movq $input, %rdi
+    leaq -16(%rbp), %rsi
+    call scanf
+    movq -16(%rbp), %rax
 
-    movq $base_prompt, %rdi         # param1: prompt string
-    call printf                # print prompt
-
-    movq $0, %rax              # no vector registers in use for scanf
-    movq $input, %rdi          # param1: input format string
-    leaq -16(%rbp), %rsi       # param2: address of reserved space    
-    call scanf                 # read user input
-
-    movq -16(%rbp), %rdi       # load input value into RSI
-    
-    movq %rbp, %rsp             # restore stack pointer
-    popq %rbp                  # restore base pointer
+    #Epilogue
+    movq %rbp, %rsp
+    popq %rbp
     ret
 
 
 pow:
-    // Prologue
+    #Prologue
     pushq %rbp
     movq %rsp, %rbp
     movq %rdi, %rax
     movq %rsi, %rcx
-iter:
 
+iter:
     cmp $1, %rcx
     je done
     mulq %rdi
     dec %rcx
     jmp iter
-done:
 
+done:
     movq %rbp, %rsp
     popq %rbp
     ret
@@ -81,12 +62,16 @@ done:
 .global main
 
 main:
-
     push %rbp
     mov %rsp, %rbp
     
     call inout
+
+    movq %rax, %rdi   # base → rdi
+    movq %rbx, %rsi   # exponent → rsi
+
     call pow
+
     mov %rax, %rsi
     mov $result, %rdi
     call printf
