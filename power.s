@@ -34,25 +34,29 @@ exp_base_input:
     call printf
 
     #Read exponent from user and save into rbx
-    subq $16, %rsp
+    subq $16, %rsp      #allocate 2 bytes of memory (stack allignment)
     movq $0, %rax
-    movq $input, %rdi
-    leaq -8(%rbp), %rsi
+    movq $input, %rdi   
+    leaq -16(%rbp), %rsi
     call scanf
-    //movq -8(%rbp), %rbx
+    
 
     #Prompt user for base
     movq $base_prompt, %rdi
     call printf
-
+    
     #Read base from user and save into rax
+    subq $16, %rsp      #allocate another 2 bytes of memory (stack allignment)
     movq $input, %rdi
-    leaq -16(%rbp), %rsi
+    leaq -32(%rbp), %rsi
     call scanf
-    //movq -16(%rbp), %rax
 
-    popq %rax 
-    popq %rdx
+    movq -16(%rbp), %rdx
+    movq -32(%rbp), %rax
+
+    addq $32, %rsp  #Dealocate memory
+
+
 
     #Epilogue
     movq %rbp, %rsp
