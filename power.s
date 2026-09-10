@@ -18,7 +18,7 @@
 # ***************************************************************************
 #
 # * Subroutine: exp_base_input 
-# * Description: This coroutine asks the user for an exponent and a base 
+# * Description: This subroutine asks the user for an exponent and a base 
 #   and stores them in registers:
 #   base (as a qword) -> %rdx 
 #   expontent (as a qword) -> %rax 
@@ -61,8 +61,8 @@ exp_base_input:
 
 # ***************************************************************************
 #
-# * Coroutine: pow 
-# * Description: This coroutine takes two arguments and computes an exponent (base^exp)
+# * Subroutine: pow 
+# * Description: This subroutine takes two arguments and computes an exponent (base^exp)
 #   
 # * Arguments:
 #   base -> %rdi (as qword)
