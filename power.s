@@ -78,8 +78,8 @@ exp_base_input:
 #***************************************************************************
 pow:
     #Prologue
-    pushq %rbp
-    movq %rsp, %rbp
+    push %rbp
+    mov %rsp, %rbp
     movq %rdi, %rax # Moving the base parameter into %rax
     movq %rsi, %rcx # Moving the exp parameter into %rcx (counter)
 
@@ -99,8 +99,8 @@ clean:
     movq $1, %rax #Only reachable if the exponent is 0
 done:
     #Epilogue
-    movq %rbp, %rsp
-    popq %rbp
+    mov %rbp, %rsp
+    pop %rbp
     ret
 
 .global main
