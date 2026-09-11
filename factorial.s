@@ -8,53 +8,13 @@
 
 .data
 
-    result: .asciz "\nResult: %u\n"
+    result: .asciz "\nResult: %llu\n"
     factorial_prompt: .asciz "\nPlease enter number that you want to compute factorial for: "
-    input: .asciz "%ld"
+    input: .asciz "%llu"
 
 .text
 
 
-
-# ***************************************************************************
-#
-# * Subroutine: pow 
-# * Description: This subroutine takes two arguments and computes an exponent (base^exp)
-#   
-# * Arguments:
-#   base -> %rdi (as qword)
-#   exp -> %rsi (as qword)
-#   
-# * Output:  
-#   %rax
-#
-#***************************************************************************
-pow:
-    #Prologue
-    pushq %rbp
-    movq %rsp, %rbp
-    movq %rdi, %rax # Moving the base parameter into %rax
-    movq %rsi, %rcx # Moving the exp parameter into %rcx (counter)
-
-    #Edge case where exponent is 0
-    cmp $0, %rcx
-    je clean
-#Multiply base by itself exp times
-iter:
-    cmp $1, %rcx  # Check whether the count is 1
-    je done
-    mulq %rdi   # If count is not yet 1: %rax * %rdi -> %rax
-    dec %rcx    # Decrement counter
-    jmp iter    # Loop
-
-#Clean Up
-clean:
-    movq $1, %rax #Only reachable if the exponent is 0
-done:
-    #Epilogue
-    movq %rbp, %rsp
-    popq %rbp
-    ret
 
 
 
@@ -71,7 +31,7 @@ done:
 #   
 # * Output:  
 #   %rax
-#
+# * outputs accurate values up to 24 before 8 byte register begins to overflow
 #***************************************************************************
 factorial:
     
@@ -89,8 +49,8 @@ factorial:
     call factorial
 
     
-    popq %rdi   #store next tmp number in rdi
-    mulq %rdi   # %rax is quaranteed to be 1 or a part of the n! computation
+    popq %rsi   #store next tmp number in rsi
+    mulq %rsi   # %rax is quaranteed to be 1 or a part of the n! computation
     ret
 
     
@@ -117,15 +77,15 @@ main:
     
     #Read value
     
-    subq $16 ,%rsp  #Allocate a word of memory (stack allignment)
+    subq $64 ,%rsp  #Allocate a qword of memory (stack allignment) (for unsigned long long)
     movq $0, %rax
     movq $input, %rdi
-    leaq -16(%rbp), %rsi 
+    leaq -64(%rbp), %rsi 
     call scanf 
 
-    movq -16(%rbp), %rdi #Store user input as parameter to factorial
+    movq -64(%rbp), %rdi #Store user input as parameter to factorial
 
-    addq $16, %rsp  #Deallocate user input
+    addq $64, %rsp  #Deallocate user input
 
     #Supply parameter to factorial
     #movq $6, %rdi   #supply n as an argument

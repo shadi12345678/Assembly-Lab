@@ -8,10 +8,10 @@
 
 .data
 
-    result: .asciz "\nResult: %u\n"
+    result: .asciz "\nResult: %llu\n"
     base_prompt: .asciz "\nPlease enter a positive number for a base: "
     exp_prompt: .asciz "\nPlease enter a positive number for an exponent: "
-    input: .asciz "%ld"
+    input: .asciz "%llu"
 
 .text
 
@@ -34,10 +34,10 @@ exp_base_input:
     call printf
 
     #Read exponent from user and save into rbx
-    subq $16, %rsp      #allocate 2 bytes of memory (stack allignment)
+    subq $64, %rsp      #allocate 8 bytes of memory (stack allignment) (for unsigned long)
     movq $0, %rax
     movq $input, %rdi   
-    leaq -16(%rbp), %rsi
+    leaq -64(%rbp), %rsi
     call scanf
     
 
@@ -46,15 +46,15 @@ exp_base_input:
     call printf
     
     #Read base from user and save into rax
-    subq $16, %rsp      #allocate another 2 bytes of memory (stack allignment)
+    subq $64, %rsp      #allocate another 8 bytes of memory (stack allignment) (for unsigned long)
     movq $input, %rdi
-    leaq -32(%rbp), %rsi
+    leaq -128(%rbp), %rsi
     call scanf
 
-    movq -16(%rbp), %rdx
-    movq -32(%rbp), %rax
+    movq -64(%rbp), %rdx
+    movq -128(%rbp), %rax
 
-    addq $32, %rsp  #Dealocate memory
+    addq $128, %rsp  #Dealocate memory
 
 
 
