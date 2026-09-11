@@ -34,7 +34,11 @@
 # * outputs accurate values up to 24 before 8 byte register begins to overflow
 #***************************************************************************
 factorial:
-    
+    #Prologue
+    push %rbp
+    mov %rsp, %rbp
+
+
     cmp  $1, %rdi         
     jle exit_factorial  #Check if rdi is 1 or less
     
@@ -51,11 +55,17 @@ factorial:
     
     popq %rsi   #store next tmp number in rsi
     mulq %rsi   # %rax is quaranteed to be 1 or a part of the n! computation
-    ret
+
+    jmp exit_factorial_epilogue #Make sure to jmp to epilogue 
 
     
 exit_factorial:
     movq $1, %rax       #Special case set rax to 1
+
+exit_factorial_epilogue:
+    #Epilogue
+    mov %rbp, %rsp
+    pop %rbp
     ret                 #Return
 
 

@@ -26,8 +26,8 @@
 #***************************************************************************
 exp_base_input:
     #Prologue
-    pushq %rbp
-    movq %rsp, %rbp
+    push %rbp
+    mov %rsp, %rbp
 
     #Prompt user for exponent
     movq $exp_prompt, %rdi
@@ -59,8 +59,8 @@ exp_base_input:
 
 
     #Epilogue
-    movq %rbp, %rsp
-    popq %rbp
+    mov %rbp, %rsp
+    pop %rbp
     ret
 
 # ***************************************************************************
