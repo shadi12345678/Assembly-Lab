@@ -85,7 +85,7 @@ pow:
 
     #Edge case where exponent is 0
     cmp $0, %rcx
-    je clean
+    jle clean
 #Multiply base by itself exp times
 iter:
     cmp $1, %rcx  # Check whether the count is 1
