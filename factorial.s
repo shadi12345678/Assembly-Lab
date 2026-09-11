@@ -87,15 +87,15 @@ main:
     
     #Read value
     
-    subq $64 ,%rsp  #Allocate a qword of memory (stack allignment) (for unsigned long long)
+    subq $16 ,%rsp  #Allocate a qword of memory (stack allignment) (for unsigned long long)
     movq $0, %rax
     movq $input, %rdi
-    leaq -64(%rbp), %rsi 
+    leaq -16(%rbp), %rsi 
     call scanf 
 
-    movq -64(%rbp), %rdi #Store user input as parameter to factorial
+    movq -16(%rbp), %rdi #Store user input as parameter to factorial
 
-    addq $64, %rsp  #Deallocate user input
+    addq $16, %rsp  #Deallocate user input
 
     #Supply parameter to factorial
     #movq $6, %rdi   #supply n as an argument

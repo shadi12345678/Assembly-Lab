@@ -34,10 +34,10 @@ exp_base_input:
     call printf
 
     #Read exponent from user and save into rbx
-    subq $64, %rsp      #allocate 8 bytes of memory (stack allignment) (for unsigned long)
+    subq $16, %rsp      #allocate 8 bytes of memory (stack allignment) (for unsigned long)
     movq $0, %rax
     movq $input, %rdi   
-    leaq -64(%rbp), %rsi
+    leaq -16(%rbp), %rsi
     call scanf
     
 
@@ -46,15 +46,15 @@ exp_base_input:
     call printf
     
     #Read base from user and save into rax
-    subq $64, %rsp      #allocate another 8 bytes of memory (stack allignment) (for unsigned long)
+    subq $16, %rsp      #allocate another 8 bytes of memory (stack allignment) (for unsigned long)
     movq $input, %rdi
-    leaq -128(%rbp), %rsi
+    leaq -32(%rbp), %rsi
     call scanf
 
-    movq -64(%rbp), %rdx
-    movq -128(%rbp), %rax
+    movq -16(%rbp), %rdx
+    movq -32(%rbp), %rax
 
-    addq $128, %rsp  #Dealocate memory
+    addq $32, %rsp  #Dealocate memory
 
 
 
