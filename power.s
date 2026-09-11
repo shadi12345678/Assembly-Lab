@@ -2,7 +2,7 @@
 #
 # * Program: Power calculator
 # * Description: This program takes two inputs from the user 
-#   (exponent and base) and outputs the result.
+#   (base and exponent) and outputs the result.
 # 
 #***************************************************************************
 
@@ -30,7 +30,7 @@ exp_base_input:
     mov %rsp, %rbp
 
     #Prompt user for exponent
-    movq $exp_prompt, %rdi
+    movq $base_prompt, %rdi
     call printf
 
     #Read exponent from user and save into rbx
@@ -42,7 +42,7 @@ exp_base_input:
     
 
     #Prompt user for base
-    movq $base_prompt, %rdi
+    movq $exp_prompt, %rdi
     call printf
     
     #Read base from user and save into rax
@@ -51,8 +51,8 @@ exp_base_input:
     leaq -32(%rbp), %rsi
     call scanf
 
-    movq -16(%rbp), %rdx
-    movq -32(%rbp), %rax
+    movq -16(%rbp), %rax
+    movq -32(%rbp), %rdx
 
     addq $32, %rsp  #Dealocate memory
 
