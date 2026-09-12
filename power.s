@@ -18,7 +18,7 @@
 # ***************************************************************************
 #
 # * Subroutine: exp_base_input 
-# * Description: This subroutine asks the user for an exponent and a base 
+# * Description: This subroutine asks the user for a base and an exponent 
 #   and stores them in registers:
 #   base (as a qword) -> %rdx 
 #   expontent (as a qword) -> %rax 
@@ -31,6 +31,7 @@ exp_base_input:
 
     #Prompt user for exponent
     movq $base_prompt, %rdi
+    movq $0, %rax
     call printf
 
     #Read exponent from user and save into rbx
@@ -43,12 +44,15 @@ exp_base_input:
 
     #Prompt user for base
     movq $exp_prompt, %rdi
+    movq $0, %rax
     call printf
     
     #Read base from user and save into rax
     subq $16, %rsp      #allocate another 8 bytes of memory (stack allignment) (for unsigned long)
+    movq $0, %rax
     movq $input, %rdi
     leaq -32(%rbp), %rsi
+    
     call scanf
 
     movq -16(%rbp), %rax
@@ -118,7 +122,6 @@ main:
     
     call exp_base_input 
 
-
     #Supply parameter to pow
     movq %rax, %rdi   #base -> rdi
     movq %rdx, %rsi   #exponent -> rsi
@@ -126,9 +129,9 @@ main:
     call pow
 
     #Print result
-    mov %rax, %rsi      # Copy the result of pow to %rsi (1st parameter for printf)
-    mov $result, %rdi   # Copy result text to %rdi (2nd parameter to printf)
-    mov $0, %rax        # No args for printf
+    movq %rax, %rsi      # Copy the result of pow to %rsi (1st parameter for printf)
+    movq $result, %rdi   # Copy result text to %rdi (2nd parameter to printf)
+    movq $0, %rax        # No args for printf
     call printf
 
     #Epilogue
