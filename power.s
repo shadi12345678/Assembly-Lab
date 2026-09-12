@@ -67,6 +67,7 @@ exp_base_input:
 #
 # * Subroutine: pow 
 # * Description: This subroutine takes two arguments and computes an exponent (base^exp)
+# * In case of overflow returns the result (not accurate) immediately
 #   
 # * Arguments:
 #   base -> %rdi (as qword)
@@ -88,9 +89,14 @@ pow:
     jle clean
 #Multiply base by itself exp times
 iter:
-    cmp $1, %rcx  # Check whether the count is 1
+    cmpq $1, %rcx  # Check whether the count is 1
     je done
+
     mulq %rdi   # If count is not yet 1: %rax * %rdi -> %rax
+
+    cmpq $0, %rdx   #Check if the multiplication overflowed. 
+    jne done        #If overflow occured return overflowed result 
+
     dec %rcx    # Decrement counter
     jmp iter    # Loop
 
