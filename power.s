@@ -9,46 +9,46 @@
 .data
 
     result: .asciz "\nResult: %llu\n"
-    base_prompt: .asciz "\nPlease enter a positive number for a base: "
-    exp_prompt: .asciz "\nPlease enter a positive number for an exponent: "
+    base_prompt: .asciz "\nPlease enter a non-negative number for a base: "
+    exp_prompt: .asciz "\nPlease enter a non-negative number for an exponent: "
     input: .asciz "%llu"
 
 .text
 
 # ***************************************************************************
 #
-# * Subroutine: exp_base_input 
+# * Subroutine: base_exp_input 
 # * Description: This subroutine asks the user for a base and an exponent 
 #   and stores them in registers:
-#   base (as a qword) -> %rdx 
-#   expontent (as a qword) -> %rax 
+#   base (as a qword) -> %rax 
+#   expontent (as a qword) -> %rdx 
 # 
 #***************************************************************************
-exp_base_input:
+base_exp_input:
     #Prologue
     push %rbp
     mov %rsp, %rbp
 
-    #Prompt user for exponent
+    #Prompt user for base
     movq $base_prompt, %rdi
     movq $0, %rax
     call printf
 
-    #Read exponent from user and save into rbx
-    subq $16, %rsp      #allocate 8 bytes of memory (stack allignment) (for unsigned long)
+    #Read base from user and save into the stack
+    subq $16, %rsp      #allocate 16 bytes of memory (stack allignment) (for unsigned long)
     movq $0, %rax
     movq $input, %rdi   
     leaq -16(%rbp), %rsi
     call scanf
     
 
-    #Prompt user for base
+    #Prompt user for exponent
     movq $exp_prompt, %rdi
     movq $0, %rax
     call printf
     
-    #Read base from user and save into rax
-    subq $16, %rsp      #allocate another 8 bytes of memory (stack allignment) (for unsigned long)
+    #Read exponent from user and save into the stack
+    subq $16, %rsp      #allocate another 16 bytes of memory (stack allignment) (for unsigned long)
     movq $0, %rax
     movq $input, %rdi
     leaq -32(%rbp), %rsi
@@ -82,35 +82,69 @@ exp_base_input:
 #
 #***************************************************************************
 pow:
-    #Prologue
-    push %rbp
-    mov %rsp, %rbp
-    movq %rdi, %rax # Moving the base parameter into %rax
-    movq %rsi, %rcx # Moving the exp parameter into %rcx (counter)
+    #Prologue is not needed because we dont call anything inside of the subroutine
+    #push %rbp
+    #mov %rsp, %rbp
 
     #Edge case where exponent is 0
-    cmp $0, %rcx
+    cmp $0, %rsi
     jle clean
-#Multiply base by itself exp times
-iter:
-    cmpq $1, %rcx  # Check whether the count is 1
+
+    movq $2 , %r11      #Used later for multiplication by 2
+    #rdi -> base
+    movq %rsi, %rcx # Moving the exp parameter into %rcx (counter)
+    movq $1, %r9    # end_res = 1
+
+reset_pow:
+    movq $1, %rsi # cur_base = 1
+    movq %rdi, %r8 # res = base
+
+
+outer_iter_pow:
+    cmpq $0, %rcx   #If rcx is 0 return
     je done
 
-    mulq %rdi   # If count is not yet 1: %rax * %rdi -> %rax
+    inner_iter_pow:
+        movq %rsi, %r10     #store original cur_base without multiplication
+        movq %rsi, %rax
+        mulq %r11             #cur_base *=2
+        movq %rax, %rsi
 
-    cmpq $0, %rdx   #Check if the multiplication overflowed. 
-    jne done        #If overflow occured return overflowed result 
+        cmpq %rsi, %rcx 
+        jl after_inner_iter_pow #if exp < cur_base done with loop
 
-    dec %rcx    # Decrement counter
-    jmp iter    # Loop
+        cmpq %r10, %rax
+        jl after_inner_iter_pow  #if cur_base overflowed we know that cur_base is higher so exit loop too
+
+
+        movq %r8, %rax
+        mulq %r8           #res*=res
+        movq %rax, %r8 
+    jmp inner_iter_pow
+    after_inner_iter_pow:
+        movq %rcx , %rax
+        div %r10        #exp = exp % cur_base
+        movq %rdx, %rcx
+
+        movq %r9, %rax
+        mulq %r8       #end_res *=res
+        movq %rax, %r9
+        
+        jmp reset_pow
+
+    jmp outer_iter_pow
 
 #Clean Up
 clean:
     movq $1, %rax #Only reachable if the exponent is 0
+    ret
 done:
+    movq %r9, %rax
+    
     #Epilogue
-    mov %rbp, %rsp
-    pop %rbp
+    #mov %rbp, %rsp
+    #pop %rbp
+    
     ret
 
 .global main
@@ -120,7 +154,7 @@ main:
     push %rbp
     mov %rsp, %rbp
     
-    call exp_base_input 
+    call base_exp_input 
 
     #Supply parameter to pow
     movq %rax, %rdi   #base -> rdi
@@ -129,8 +163,8 @@ main:
     call pow
 
     #Print result
-    movq %rax, %rsi      # Copy the result of pow to %rsi (1st parameter for printf)
-    movq $result, %rdi   # Copy result text to %rdi (2nd parameter to printf)
+    movq $result, %rdi   # Copy result text to %rdi (1st parameter to printf)
+    movq %rax, %rsi      # Copy the result of pow to %rsi (2nd parameter for printf)
     movq $0, %rax        # No args for printf
     call printf
 
