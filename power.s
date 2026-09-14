@@ -132,6 +132,9 @@ main:
     
     call base_input
 
+        pushq %rbx
+        subq $8, %rsp   #allign rsp
+
         movq %rax, %rbx
 
 
@@ -139,6 +142,8 @@ main:
 
         movq %rax, %rsi
         movq %rbx, %rdi
+        addq $8, %rsp
+        popq %rbx
 
     call pow
 
@@ -152,3 +157,4 @@ main:
     mov %rbp, %rsp
     pop %rbp
     ret
+    
