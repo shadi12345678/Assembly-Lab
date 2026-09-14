@@ -1,0 +1,11 @@
+// pseudo code for factorial.s
+// outputs 1 for values that are negative and 0
+
+fn factorial(n: u64) -> u64 {
+    if n <= 1 {
+        return 1;
+    }
+    let tmp: u64 = n * (n - 1);
+
+    return tmp * factorial(n - 2);
+}
