@@ -1,10 +1,9 @@
-.bss
-    BUFFER: .skip 1024	#reserve 1024 bytes for printf
-	
+
 .text
 
 .include "final.s"
-
+#.include "./dcd_msg/helloWorld.s"
+#.include "./dcd_msg/abc_sorted.s"
 
 
 .global main
@@ -28,9 +27,11 @@ decode:
 
 	movq $8, %r11			#size of 1 chunk
 
-	#movq (%rdi), %rsi	# load the first quadword of the message into rsi
+	
 
-	movq $BUFFER, %rsi	#store the pointer to the last character in the buffer
+	subq $16384, %rsp	# Make a buffer for 16384 bytes (characters)
+	movq %rsp, %rsi		# rsi -> location where the character can be placed
+	
 	
 	
 
@@ -72,8 +73,9 @@ decode:
 		je	exit_loop
 		
 		#push character to the buffer
+		
 		movb %r9b, (%rsi) #move the character to the buffer
-		addq $1, %rsi	 #increment the pointer to the next free space
+		inc %rsi
 		
 		loop decode_iter
 		
@@ -88,15 +90,16 @@ decode:
 
 	end_decode:
 	#push terminator character to the buffer
+	
 	movb $0, (%rsi) 
-	addq $1, %rsi
+	inc %rsi
 
-	#print buffer characters
+
 	movq $0, %rax
-	movq $BUFFER, %rdi		#start to print from the bottom of the stack
+	movq %rsp, %rdi		#start to print from the bottom of the stack
 	call printf
 	
-
+	addq $16384, %rsp	#Dealocate the buffer
 
 	# epilogue
 	movq	%rbp, %rsp		# clear local variables from stack
@@ -113,4 +116,3 @@ main:
 	popq	%rbp			# restore base pointer location 
 	movq	$0, %rdi		# load program exit code
 	call	exit			# exit the program
-
