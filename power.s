@@ -88,58 +88,56 @@ pow:
 
     #Edge case where exponent is 0
     cmp $0, %rsi
-    jle clean
+    jle clean 
 
-    movq $2 , %r11      #Used later for multiplication by 2
-    #rdi -> base
-    movq %rsi, %rcx # Moving the exp parameter into %rcx (counter)
-    movq $1, %r9    # end_res = 1
+    
+                    #rdi = base
+    movq %rsi, %rcx # rcx = exp
 
-reset_pow:
-    movq $1, %rsi # cur_base = 1
-    movq %rdi, %r8 # res = base
+    movq $1, %rsi   #=res = 1 
+    movq $2, %r9    #for divisions
 
 
-outer_iter_pow:
-    cmpq $0, %rcx   #If rcx is 0 return
-    je done
+iter:
+    cmpq $0, %rcx   #while exp > 0
+    jle done
 
-    inner_iter_pow:
-        movq %rsi, %r10     #store original cur_base without multiplication
-        movq %rsi, %rax
-        mulq %r11             #cur_base *=2
-        movq %rax, %rsi
+    movq $0, %rdx
+    movq %rcx, %rax
+    div %r9         # getting the exp % 2
+    
+    cmpq $1, %rdx
+    je remainder
+    jmp exit_remainder
+    remainder:
 
-        cmpq %rsi, %rcx 
-        jl after_inner_iter_pow #if exp < cur_base done with loop
-
-        cmpq %r10, %rax
-        jl after_inner_iter_pow  #if cur_base overflowed we know that cur_base is higher so exit loop too
+    movq %rdi, %rax
+    mulq %rsi           # res = res * base
+    movq %rax, %rsi
 
 
-        movq %r8, %rax
-        mulq %r8           #res*=res
-        movq %rax, %r8 
-    jmp inner_iter_pow
-    after_inner_iter_pow:
-        movq %rcx , %rax
-        div %r10        #exp = exp % cur_base
-        movq %rdx, %rcx
+    exit_remainder:
 
-        movq %r9, %rax
-        mulq %r8       #end_res *=res
-        movq %rax, %r9
-        
-        jmp reset_pow
+    movq %rdi, %rax
+    mulq %rdi           #base = base *base
+    movq %rax, %rdi
 
-    jmp outer_iter_pow
+    movq $0, %rdx # clear rdx
+    movq %rcx, %rax
+    divq %r9             #exp = exp/2
+    movq %rax, %rcx
+
+    #shr $1, %rcx
+
+jmp iter
+
 
 #Clean Up
 clean:
     movq $1, %rax #Only reachable if the exponent is 0
     ret
 done:
-    movq %r9, %rax
+    movq %rsi, %rax
     
     #Epilogue
     #mov %rbp, %rsp
