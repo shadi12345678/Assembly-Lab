@@ -49,7 +49,7 @@ factorial:
 
     pushq %rax          #Store the output of n*(n-1) on the stack (tmp)
 
-    dec %rdi    #n = n-2
+    dec %rdi            #n = n-2
     call factorial
 
     

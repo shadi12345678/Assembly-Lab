@@ -74,9 +74,29 @@ decode:
 		
 		#push character to the buffer
 		
+
+
+		movb $27, (%rsi) #move esc
+		inc %rsi
+
+		movb $91, (%rsi)	#move bracket ([)
+		inc %rsi
+
+
+		movb $51, (%rsi)	#move bracket (color) 3
+		inc %rsi
+
+		movb $49, (%rsi)	#move bracket (color) 1
+		inc %rsi
+
+		movb $109, (%rsi) #move letter m
+		inc %rsi 
+
+
+
 		movb %r9b, (%rsi) #move the character to the buffer
 		inc %rsi
-		
+
 		loop decode_iter
 		
 
